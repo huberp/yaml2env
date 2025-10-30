@@ -69,6 +69,47 @@ jobs:
       run: |
         go build -v -o yaml2env-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.goos == 'windows' && '.exe' || '' }} .
     
+    - name: Test executable
+      if: matrix.goos == 'linux' && matrix.goarch == 'amd64'
+      run: |
+        # Make executable
+        chmod +x yaml2env-${{ matrix.goos }}-${{ matrix.goarch }}
+        
+        # Test 1: Basic execution with example.yaml
+        echo "Test 1: Basic conversion to bash"
+        ./yaml2env-${{ matrix.goos }}-${{ matrix.goarch }} example.yaml
+        
+        # Test 2: Verify output contains expected variables
+        echo "Test 2: Verify output contains expected environment variables"
+        OUTPUT=$(./yaml2env-${{ matrix.goos }}-${{ matrix.goarch }} example.yaml)
+        echo "$OUTPUT" | grep -q "export DATABASE_HOST='localhost'" || (echo "Missing DATABASE_HOST" && exit 1)
+        echo "$OUTPUT" | grep -q "export DATABASE_PORT='5432'" || (echo "Missing DATABASE_PORT" && exit 1)
+        echo "$OUTPUT" | grep -q "export APP_NAME='my-application'" || (echo "Missing APP_NAME" && exit 1)
+        
+        # Test 3: Test with prefix
+        echo "Test 3: Test with prefix"
+        OUTPUT_PREFIX=$(./yaml2env-${{ matrix.goos }}-${{ matrix.goarch }} example.yaml --prefix TEST)
+        echo "$OUTPUT_PREFIX" | grep -q "export TEST_DATABASE_HOST='localhost'" || (echo "Prefix not applied" && exit 1)
+        
+        # Test 4: Test PowerShell format
+        echo "Test 4: Test PowerShell format"
+        OUTPUT_PS=$(./yaml2env-${{ matrix.goos }}-${{ matrix.goarch }} example.yaml --shell powershell)
+        echo "$OUTPUT_PS" | grep -q '\$env:DATABASE_HOST' || (echo "PowerShell format failed" && exit 1)
+        
+        # Test 5: Test CMD format
+        echo "Test 5: Test CMD format"
+        OUTPUT_CMD=$(./yaml2env-${{ matrix.goos }}-${{ matrix.goarch }} example.yaml --shell cmd)
+        echo "$OUTPUT_CMD" | grep -q 'set DATABASE_HOST=' || (echo "CMD format failed" && exit 1)
+        
+        # Test 6: Test sourcing
+        echo "Test 6: Test sourcing environment variables"
+        eval "$(./yaml2env-${{ matrix.goos }}-${{ matrix.goarch }} example.yaml)"
+        [ "$DATABASE_HOST" = "localhost" ] || (echo "DATABASE_HOST not set correctly" && exit 1)
+        [ "$DATABASE_PORT" = "5432" ] || (echo "DATABASE_PORT not set correctly" && exit 1)
+        [ "$APP_NAME" = "my-application" ] || (echo "APP_NAME not set correctly" && exit 1)
+        
+        echo "All executable tests passed!"
+    
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:

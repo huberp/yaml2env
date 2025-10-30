@@ -18,6 +18,7 @@ go.work
 /bin/
 /dist/
 yaml2env
+yaml2env-*
 
 # IDE
 .idea/
