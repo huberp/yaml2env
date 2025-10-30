@@ -18,6 +18,8 @@ Convert YAML files to shell environment variables.
 - Support for nested YAML structures
 - Array handling
 - Multiple shell formats: bash, sh, PowerShell, cmd
+- Direct environment variable manipulation with `--set` flag
+- GitHub Actions integration via `$GITHUB_ENV`
 - Cross-platform (Linux/Windows, AMD64/ARM64)
 - Prefix support for variable names
 
@@ -51,6 +53,33 @@ yaml2env config.yaml
 
 # Source into current shell
 eval "$(yaml2env config.yaml)"
+```
+
+### Direct Environment Manipulation (--set)
+
+Set environment variables directly in the current process and GitHub Actions workflow:
+
+```bash
+# Set variables directly (useful in CI/CD workflows)
+yaml2env config.yaml --set
+```
+
+When using `--set`:
+- Variables are set in the current process using `os.Setenv()`
+- In GitHub Actions, variables are automatically written to `$GITHUB_ENV` for use in subsequent steps
+- This flag is mutually exclusive with `--shell`
+
+**GitHub Actions Example:**
+
+```yaml
+steps:
+  - name: Set environment from YAML
+    run: yaml2env config.yaml --set
+  
+  - name: Use variables in next step
+    run: |
+      echo "Database host: $DATABASE_HOST"
+      echo "App name: $APP_NAME"
 ```
 
 ### Shell Types
@@ -99,6 +128,7 @@ export APP_DEBUG='true'
 ## Flags
 
 - `-s, --shell string`: Shell type (bash, sh, powershell, cmd) [default: bash]
+- `--set`: Set environment variables directly (mutually exclusive with --shell)
 - `-p, --prefix string`: Prefix for environment variable names
 - `-h, --help`: Help information
 - `-v, --version`: Version information
