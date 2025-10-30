@@ -91,7 +91,7 @@ func escapeSingleQuote(s string) string {
 
 // SetEnvVars sets environment variables directly in the current process
 // and writes to GITHUB_ENV if running in GitHub Actions
-func SetEnvVars(envVars []EnvVar) error {
+func SetEnvVars(envVars []EnvVar) (err error) {
 	// Set in current process
 	for _, ev := range envVars {
 		if err := os.Setenv(ev.Key, ev.Value); err != nil {
