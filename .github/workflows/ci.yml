@@ -94,7 +94,7 @@ jobs:
         # Test 4: Test PowerShell format
         echo "Test 4: Test PowerShell format"
         OUTPUT_PS=$(./yaml2env-${{ matrix.goos }}-${{ matrix.goarch }} example.yaml --shell powershell)
-        echo "$OUTPUT_PS" | grep -q '\$env:DATABASE_HOST' || (echo "PowerShell format failed" && exit 1)
+        echo "$OUTPUT_PS" | grep -q "\$env:DATABASE_HOST = 'localhost'" || (echo "PowerShell format failed" && exit 1)
         
         # Test 5: Test CMD format
         echo "Test 5: Test CMD format"
