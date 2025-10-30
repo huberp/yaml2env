@@ -107,7 +107,7 @@ export APP_DEBUG='true'
 
 ### Prerequisites
 
-- Go 1.23 or later
+- Go 1.25.3 or later
 
 ### Build
 
