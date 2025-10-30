@@ -2,6 +2,7 @@ package converter
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"gopkg.in/yaml.v3"
@@ -86,4 +87,34 @@ func FormatForShell(envVars []EnvVar, shellType string) (string, error) {
 // escapeSingleQuote escapes single quotes in values
 func escapeSingleQuote(s string) string {
 	return strings.ReplaceAll(s, "'", "'\\''")
+}
+
+// SetEnvVars sets environment variables directly in the current process
+// and writes to GITHUB_ENV if running in GitHub Actions
+func SetEnvVars(envVars []EnvVar) error {
+	// Set in current process
+	for _, ev := range envVars {
+		if err := os.Setenv(ev.Key, ev.Value); err != nil {
+			return fmt.Errorf("failed to set %s: %w", ev.Key, err)
+		}
+	}
+
+	// If running in GitHub Actions, also write to GITHUB_ENV
+	githubEnv := os.Getenv("GITHUB_ENV")
+	if githubEnv != "" {
+		// #nosec G304: GITHUB_ENV is a trusted GitHub Actions environment variable
+		f, err := os.OpenFile(githubEnv, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
+		if err != nil {
+			return fmt.Errorf("failed to open GITHUB_ENV file: %w", err)
+		}
+		defer f.Close()
+
+		for _, ev := range envVars {
+			if _, err := f.WriteString(fmt.Sprintf("%s=%s\n", ev.Key, ev.Value)); err != nil {
+				return fmt.Errorf("failed to write to GITHUB_ENV: %w", err)
+			}
+		}
+	}
+
+	return nil
 }

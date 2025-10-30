@@ -26,11 +26,14 @@ to set environment variables from the YAML content.`,
 var (
 	shellType string
 	prefix    string
+	setMode   bool
 )
 
 func init() {
 	rootCmd.Flags().StringVarP(&shellType, "shell", "s", "bash", "Shell type: bash, sh, powershell, cmd")
 	rootCmd.Flags().StringVarP(&prefix, "prefix", "p", "", "Prefix for environment variable names")
+	rootCmd.Flags().BoolVar(&setMode, "set", false, "Set environment variables directly (mutually exclusive with --shell)")
+	rootCmd.MarkFlagsMutuallyExclusive("set", "shell")
 }
 
 // SetVersionInfo sets version information for the CLI
@@ -58,6 +61,13 @@ func runConvert(cmd *cobra.Command, args []string) error {
 	envVars, err := converter.YAMLToEnvVars(data, prefix)
 	if err != nil {
 		return fmt.Errorf("failed to convert YAML: %w", err)
+	}
+
+	if setMode {
+		if err := converter.SetEnvVars(envVars); err != nil {
+			return fmt.Errorf("failed to set environment variables: %w", err)
+		}
+		return nil
 	}
 
 	output, err := converter.FormatForShell(envVars, shellType)
