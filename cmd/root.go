@@ -48,7 +48,7 @@ func Execute() error {
 
 func runConvert(cmd *cobra.Command, args []string) error {
 	yamlFile := args[0]
-	
+
 	data, err := os.ReadFile(yamlFile)
 	if err != nil {
 		return fmt.Errorf("failed to read file: %w", err)

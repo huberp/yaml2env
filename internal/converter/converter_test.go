@@ -13,8 +13,8 @@ func TestYAMLToEnvVars(t *testing.T) {
 		wantErr  bool
 	}{
 		{
-			name: "simple key-value",
-			yaml: "key: value\nfoo: bar",
+			name:   "simple key-value",
+			yaml:   "key: value\nfoo: bar",
 			prefix: "",
 			expected: []EnvVar{
 				{Key: "KEY", Value: "value"},
@@ -23,8 +23,8 @@ func TestYAMLToEnvVars(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "nested structure",
-			yaml: "database:\n  host: localhost\n  port: 5432",
+			name:   "nested structure",
+			yaml:   "database:\n  host: localhost\n  port: 5432",
 			prefix: "",
 			expected: []EnvVar{
 				{Key: "DATABASE_HOST", Value: "localhost"},
@@ -33,8 +33,8 @@ func TestYAMLToEnvVars(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "with prefix",
-			yaml: "host: localhost",
+			name:   "with prefix",
+			yaml:   "host: localhost",
 			prefix: "APP",
 			expected: []EnvVar{
 				{Key: "APP_HOST", Value: "localhost"},
@@ -42,8 +42,8 @@ func TestYAMLToEnvVars(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "array values",
-			yaml: "items:\n  - first\n  - second",
+			name:   "array values",
+			yaml:   "items:\n  - first\n  - second",
 			prefix: "",
 			expected: []EnvVar{
 				{Key: "ITEMS_0", Value: "first"},
@@ -62,30 +62,30 @@ func TestYAMLToEnvVars(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result, err := YAMLToEnvVars([]byte(tt.yaml), tt.prefix)
-			
+
 			if tt.wantErr {
 				if err == nil {
 					t.Errorf("expected error but got none")
 				}
 				return
 			}
-			
+
 			if err != nil {
 				t.Errorf("unexpected error: %v", err)
 				return
 			}
-			
+
 			if len(result) != len(tt.expected) {
 				t.Errorf("expected %d env vars, got %d", len(tt.expected), len(result))
 				return
 			}
-			
+
 			// Convert to map for easier comparison
 			resultMap := make(map[string]string)
 			for _, ev := range result {
 				resultMap[ev.Key] = ev.Value
 			}
-			
+
 			for _, expected := range tt.expected {
 				if resultMap[expected.Key] != expected.Value {
 					t.Errorf("for key %s: expected %s, got %s", expected.Key, expected.Value, resultMap[expected.Key])
@@ -141,19 +141,19 @@ func TestFormatForShell(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := FormatForShell(envVars, tt.shellType)
-			
+
 			if tt.wantErr {
 				if err == nil {
 					t.Errorf("expected error but got none")
 				}
 				return
 			}
-			
+
 			if err != nil {
 				t.Errorf("unexpected error: %v", err)
 				return
 			}
-			
+
 			if got != tt.want {
 				t.Errorf("FormatForShell() = %v, want %v", got, tt.want)
 			}

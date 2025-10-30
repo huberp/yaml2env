@@ -49,7 +49,7 @@ func flatten(parentKey string, data interface{}, prefix string, envVars *[]EnvVa
 // buildKey constructs the environment variable key
 func buildKey(parent, key, prefix string) string {
 	key = strings.ToUpper(strings.ReplaceAll(key, "-", "_"))
-	
+
 	if parent == "" {
 		if prefix != "" {
 			return prefix + "_" + key
@@ -62,7 +62,7 @@ func buildKey(parent, key, prefix string) string {
 // FormatForShell formats environment variables for different shell types
 func FormatForShell(envVars []EnvVar, shellType string) (string, error) {
 	var sb strings.Builder
-	
+
 	switch strings.ToLower(shellType) {
 	case "bash", "sh":
 		for _, ev := range envVars {
@@ -79,7 +79,7 @@ func FormatForShell(envVars []EnvVar, shellType string) (string, error) {
 	default:
 		return "", fmt.Errorf("unsupported shell type: %s", shellType)
 	}
-	
+
 	return sb.String(), nil
 }
 
