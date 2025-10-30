@@ -91,7 +91,7 @@ func escapeSingleQuote(s string) string {
 
 // SetEnvVars sets environment variables directly in the current process
 // and writes to GITHUB_ENV if running in GitHub Actions
-func SetEnvVars(envVars []EnvVar) error {
+func SetEnvVars(envVars []EnvVar) (err error) {
 	// Set in current process
 	for _, ev := range envVars {
 		if err := os.Setenv(ev.Key, ev.Value); err != nil {
@@ -107,10 +107,14 @@ func SetEnvVars(envVars []EnvVar) error {
 		if err != nil {
 			return fmt.Errorf("failed to open GITHUB_ENV file: %w", err)
 		}
-		defer f.Close()
+		defer func() {
+			if closeErr := f.Close(); closeErr != nil && err == nil {
+				err = fmt.Errorf("failed to close GITHUB_ENV file: %w", closeErr)
+			}
+		}()
 
 		for _, ev := range envVars {
-			if _, err := f.WriteString(fmt.Sprintf("%s=%s\n", ev.Key, ev.Value)); err != nil {
+			if _, err := fmt.Fprintf(f, "%s=%s\n", ev.Key, ev.Value); err != nil {
 				return fmt.Errorf("failed to write to GITHUB_ENV: %w", err)
 			}
 		}

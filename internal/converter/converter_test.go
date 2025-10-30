@@ -216,7 +216,7 @@ func TestSetEnvVars(t *testing.T) {
 			// Clean up environment variables after test
 			defer func() {
 				for _, ev := range tt.envVars {
-					os.Unsetenv(ev.Key)
+					_ = os.Unsetenv(ev.Key)
 				}
 			}()
 
