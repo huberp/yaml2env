@@ -108,7 +108,47 @@ jobs:
         [ "$DATABASE_PORT" = "5432" ] || (echo "DATABASE_PORT not set correctly" && exit 1)
         [ "$APP_NAME" = "my-application" ] || (echo "APP_NAME not set correctly" && exit 1)
         
+        # Test 7: Test --set flag with mutual exclusivity
+        echo "Test 7: Test --set flag mutual exclusivity"
+        ./yaml2env-${{ matrix.goos }}-${{ matrix.goarch }} example.yaml --set --shell bash 2>&1 | grep -q "mutually exclusive" || (echo "--set and --shell should be mutually exclusive" && exit 1)
+        
         echo "All executable tests passed!"
+    
+    - name: Test --set mode
+      if: matrix.goos == 'linux' && matrix.goarch == 'amd64'
+      run: |
+        # Make executable
+        chmod +x yaml2env-${{ matrix.goos }}-${{ matrix.goarch }}
+        
+        # Create test YAML with simple values
+        cat > test-set.yaml << EOF
+        test:
+          var1: value1
+          var2: value2
+          var3: hello world
+        EOF
+        
+        # Test --set mode with GITHUB_ENV
+        echo "Testing --set mode with GITHUB_ENV"
+        ./yaml2env-${{ matrix.goos }}-${{ matrix.goarch }} test-set.yaml --set
+        
+        # Verify variables were written to GITHUB_ENV
+        grep -q "TEST_VAR1=value1" "$GITHUB_ENV" || (echo "TEST_VAR1 not found in GITHUB_ENV" && exit 1)
+        grep -q "TEST_VAR2=value2" "$GITHUB_ENV" || (echo "TEST_VAR2 not found in GITHUB_ENV" && exit 1)
+        grep -q "TEST_VAR3=hello world" "$GITHUB_ENV" || (echo "TEST_VAR3 not found in GITHUB_ENV" && exit 1)
+        
+        echo "--set mode test passed!"
+    
+    - name: Verify environment variables from --set mode
+      if: matrix.goos == 'linux' && matrix.goarch == 'amd64'
+      run: |
+        # Verify that variables set in previous step are available
+        echo "Verifying environment variables are available in next step"
+        [ "$TEST_VAR1" = "value1" ] || (echo "TEST_VAR1 not set correctly, got: $TEST_VAR1" && exit 1)
+        [ "$TEST_VAR2" = "value2" ] || (echo "TEST_VAR2 not set correctly, got: $TEST_VAR2" && exit 1)
+        [ "$TEST_VAR3" = "hello world" ] || (echo "TEST_VAR3 not set correctly, got: $TEST_VAR3" && exit 1)
+        
+        echo "Environment variables verified successfully!"
     
     - name: Upload artifact
       uses: actions/upload-artifact@v4
