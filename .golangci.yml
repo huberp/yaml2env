@@ -1,4 +1,4 @@
-version: 2
+version: "2"
 
 linters:
   enable:
@@ -21,7 +21,7 @@ formatters:
     - gofmt
     - goimports
 
-linters-settings:
+linter-settings:
   errcheck:
     check-type-assertions: true
     check-blank: true
@@ -37,6 +37,5 @@ run:
   tests: true
 
 issues:
-  exclude-use-default: false
   max-issues-per-linter: 0
   max-same-issues: 0
