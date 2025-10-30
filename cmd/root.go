@@ -49,6 +49,7 @@ func Execute() error {
 func runConvert(cmd *cobra.Command, args []string) error {
 	yamlFile := args[0]
 
+	// #nosec G304: CLI tool intentionally reads user-specified YAML files from command-line arguments
 	data, err := os.ReadFile(yamlFile)
 	if err != nil {
 		return fmt.Errorf("failed to read file: %w", err)
