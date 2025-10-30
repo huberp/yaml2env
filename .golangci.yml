@@ -14,7 +14,7 @@ linters:
     - bodyclose
     - noctx
     - rowserrcheck
-    - exportloopref
+    - copyloopvar
     - gosec
 
 linters-settings:
