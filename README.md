@@ -1,2 +1,151 @@
 # yaml2env
-projects content of a yaml file into the shell environment
+
+Convert YAML files to shell environment variables.
+
+## Overview
+
+`yaml2env` reads YAML configuration files and outputs shell commands to set environment variables. Supports nested structures, arrays, and multiple shell formats.
+
+## Features
+
+- Convert YAML to environment variables
+- Support for nested YAML structures
+- Array handling
+- Multiple shell formats: bash, sh, PowerShell, cmd
+- Cross-platform (Linux/Windows, AMD64/ARM64)
+- Prefix support for variable names
+
+## Installation
+
+### From Release
+
+Download the latest release for your platform from [releases](https://github.com/huberp/yaml2env/releases).
+
+### From Source
+
+```bash
+go install github.com/huberp/yaml2env@latest
+```
+
+### Build Locally
+
+```bash
+git clone https://github.com/huberp/yaml2env.git
+cd yaml2env
+go build
+```
+
+## Usage
+
+### Basic Usage
+
+```bash
+# Output bash export statements
+yaml2env config.yaml
+
+# Source into current shell
+eval "$(yaml2env config.yaml)"
+```
+
+### Shell Types
+
+```bash
+# Bash/sh (default)
+yaml2env config.yaml --shell bash
+
+# PowerShell
+yaml2env config.yaml --shell powershell
+
+# Windows CMD
+yaml2env config.yaml --shell cmd
+```
+
+### Prefix
+
+Add a prefix to all environment variable names:
+
+```bash
+yaml2env config.yaml --prefix MYAPP
+```
+
+### Example
+
+Given `config.yaml`:
+
+```yaml
+database:
+  host: localhost
+  port: 5432
+app:
+  name: myapp
+  debug: true
+```
+
+Running `yaml2env config.yaml` outputs:
+
+```bash
+export DATABASE_HOST='localhost'
+export DATABASE_PORT='5432'
+export APP_NAME='myapp'
+export APP_DEBUG='true'
+```
+
+## Flags
+
+- `-s, --shell string`: Shell type (bash, sh, powershell, cmd) [default: bash]
+- `-p, --prefix string`: Prefix for environment variable names
+- `-h, --help`: Help information
+- `-v, --version`: Version information
+
+## Development
+
+### Prerequisites
+
+- Go 1.23 or later
+
+### Build
+
+```bash
+make build
+```
+
+### Test
+
+```bash
+make test
+```
+
+### Cross-Compile
+
+```bash
+# Linux AMD64
+make build-linux-amd64
+
+# Linux ARM64
+make build-linux-arm64
+
+# Windows AMD64
+make build-windows-amd64
+
+# Windows ARM64
+make build-windows-arm64
+
+# All platforms
+make build-all
+```
+
+## Testing Scripts
+
+Test scripts are provided for both Unix and Windows:
+
+```bash
+# Unix/Linux
+./scripts/test.sh
+
+# PowerShell
+./scripts/test.ps1
+```
+
+## License
+
+See LICENSE file.
