@@ -21,17 +21,6 @@ formatters:
     - gofmt
     - goimports
 
-linter-settings:
-  errcheck:
-    check-type-assertions: true
-    check-blank: true
-  
-  govet:
-    enable-all: true
-  
-  gofmt:
-    simplify: true
-
 run:
   timeout: 5m
   tests: true
