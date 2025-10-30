@@ -1,6 +1,7 @@
 package converter
 
 import (
+	"os"
 	"testing"
 )
 
@@ -176,6 +177,69 @@ func TestEscapeSingleQuote(t *testing.T) {
 			result := escapeSingleQuote(tt.input)
 			if result != tt.expected {
 				t.Errorf("escapeSingleQuote(%q) = %q, want %q", tt.input, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestSetEnvVars(t *testing.T) {
+	tests := []struct {
+		name    string
+		envVars []EnvVar
+		wantErr bool
+	}{
+		{
+			name: "set simple variables",
+			envVars: []EnvVar{
+				{Key: "TEST_VAR1", Value: "value1"},
+				{Key: "TEST_VAR2", Value: "value2"},
+			},
+			wantErr: false,
+		},
+		{
+			name: "set variables with special characters",
+			envVars: []EnvVar{
+				{Key: "TEST_SPECIAL", Value: "value with spaces"},
+				{Key: "TEST_QUOTES", Value: "value'with'quotes"},
+			},
+			wantErr: false,
+		},
+		{
+			name:    "empty variables",
+			envVars: []EnvVar{},
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Clean up environment variables after test
+			defer func() {
+				for _, ev := range tt.envVars {
+					os.Unsetenv(ev.Key)
+				}
+			}()
+
+			err := SetEnvVars(tt.envVars)
+
+			if tt.wantErr {
+				if err == nil {
+					t.Errorf("SetEnvVars() expected error but got none")
+				}
+				return
+			}
+
+			if err != nil {
+				t.Errorf("SetEnvVars() unexpected error: %v", err)
+				return
+			}
+
+			// Verify variables are set in current process
+			for _, ev := range tt.envVars {
+				got := os.Getenv(ev.Key)
+				if got != ev.Value {
+					t.Errorf("environment variable %s = %q, want %q", ev.Key, got, ev.Value)
+				}
 			}
 		})
 	}
