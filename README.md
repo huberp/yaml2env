@@ -1,5 +1,11 @@
 # yaml2env
 
+[![CI](https://github.com/huberp/yaml2env/workflows/CI/badge.svg)](https://github.com/huberp/yaml2env/actions)
+[![Go Report Card](https://goreportcard.com/badge/github.com/huberp/yaml2env)](https://goreportcard.com/report/github.com/huberp/yaml2env)
+[![Go Reference](https://pkg.go.dev/badge/github.com/huberp/yaml2env.svg)](https://pkg.go.dev/github.com/huberp/yaml2env)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/huberp/yaml2env)](https://github.com/huberp/yaml2env/blob/main/go.mod)
+[![License](https://img.shields.io/github/license/huberp/yaml2env)](https://github.com/huberp/yaml2env/blob/main/LICENSE)
+
 Convert YAML files to shell environment variables.
 
 ## Overview
