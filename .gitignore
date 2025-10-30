@@ -10,6 +10,7 @@
 
 # Output of the go coverage tool
 *.out
+coverage.txt
 
 # Go workspace file
 go.work
@@ -18,6 +19,7 @@ go.work
 /bin/
 /dist/
 yaml2env
+yaml2env-*
 
 # IDE
 .idea/
