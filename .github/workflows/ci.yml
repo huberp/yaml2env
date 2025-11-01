@@ -151,7 +151,7 @@ jobs:
         echo "Environment variables verified successfully!"
     
     - name: Upload artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: yaml2env-${{ matrix.goos }}-${{ matrix.goarch }}
         path: yaml2env-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.goos == 'windows' && '.exe' || '' }}
