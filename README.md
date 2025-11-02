@@ -5,6 +5,7 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/huberp/yaml2env.svg)](https://pkg.go.dev/github.com/huberp/yaml2env)
 [![Go Version](https://img.shields.io/github/go-mod/go-version/huberp/yaml2env)](https://github.com/huberp/yaml2env/blob/main/go.mod)
 [![License](https://img.shields.io/github/license/huberp/yaml2env)](https://github.com/huberp/yaml2env/blob/main/LICENSE)
+[![Release](https://img.shields.io/github/v/release/huberp/yaml2env)](https://github.com/huberp/yaml2env/releases)
 
 Convert YAML files to shell environment variables.
 
