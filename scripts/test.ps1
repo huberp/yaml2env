@@ -24,7 +24,7 @@ Write-Host "Test 2: Conversion with prefix" -ForegroundColor Yellow
 
 Write-Host ""
 Write-Host "Test 3: Test importing (actual environment variable setting)" -ForegroundColor Yellow
-$envScript = .\yaml2env.exe "$env:TEMP\test.yaml" --shell powershell
+$envScript = .\yaml2env.exe "$env:TEMP\test.yaml" --shell powershell | Out-String
 Invoke-Expression $envScript
 Write-Host "DATABASE_HOST=$env:DATABASE_HOST"
 Write-Host "DATABASE_PORT=$env:DATABASE_PORT"

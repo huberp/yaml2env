@@ -32,7 +32,10 @@ var (
 func init() {
 	rootCmd.Flags().StringVarP(&shellType, "shell", "s", "bash", "Shell type: bash, sh, powershell, cmd")
 	rootCmd.Flags().StringVarP(&prefix, "prefix", "p", "", "Prefix for environment variable names")
-	rootCmd.Flags().BoolVar(&setMode, "set", false, "Set environment variables directly (mutually exclusive with --shell)")
+	rootCmd.Flags().BoolVar(&setMode, "set", false, "Set environment variables in CI/CD (GitHub Actions).\n"+
+		"For interactive shells use:\n"+
+		"  Bash/sh: eval \"$(yaml2env file.yaml)\"\n"+
+		"  PowerShell: Invoke-Expression (yaml2env file.yaml --shell powershell | Out-String)")
 	rootCmd.MarkFlagsMutuallyExclusive("set", "shell")
 }
 
@@ -64,6 +67,13 @@ func runConvert(cmd *cobra.Command, args []string) error {
 	}
 
 	if setMode {
+		// Warn if not in CI/CD environment
+		if os.Getenv("GITHUB_ENV") == "" && os.Getenv("CI") == "" {
+			fmt.Fprintf(os.Stderr, "Warning: --set flag only sets variables in the current process.\n")
+			fmt.Fprintf(os.Stderr, "For interactive shells, use: eval \"$(yaml2env %s)\"\n", yamlFile)
+			fmt.Fprintf(os.Stderr, "Or for PowerShell: Invoke-Expression (yaml2env %s --shell powershell | Out-String)\n\n", yamlFile)
+		}
+
 		if err := converter.SetEnvVars(envVars); err != nil {
 			return fmt.Errorf("failed to set environment variables: %w", err)
 		}
