@@ -19,7 +19,7 @@ Convert YAML files to shell environment variables.
 - Support for nested YAML structures
 - Array handling
 - Multiple shell formats: bash, sh, PowerShell, cmd
-- Direct environment variable manipulation with `--set` flag
+- CI/CD environment variable setting with `--set` flag (GitHub Actions)
 - GitHub Actions integration via `$GITHUB_ENV`
 - Cross-platform (Linux/Windows, AMD64/ARM64)
 - Prefix support for variable names
@@ -58,16 +58,23 @@ eval "$(yaml2env config.yaml)"
 
 ### Direct Environment Manipulation (--set)
 
-Set environment variables directly in the current process and GitHub Actions workflow:
+**⚠️ Important: This flag is primarily designed for CI/CD environments like GitHub Actions.**
+
+For interactive shell usage, use the sourcing/eval approach instead:
 
 ```bash
-# Set variables directly (useful in CI/CD workflows)
+# For interactive shells (recommended)
+eval "$(yaml2env config.yaml)"              # Bash/sh
+Invoke-Expression (yaml2env config.yaml --shell powershell | Out-String)  # PowerShell
+
+# For CI/CD environments (GitHub Actions)
 yaml2env config.yaml --set
 ```
 
 When using `--set`:
 - Variables are set in the current process using `os.Setenv()`
-- In GitHub Actions, variables are automatically written to `$GITHUB_ENV` for use in subsequent steps
+- **Limitation**: Cannot modify parent shell environment in interactive sessions
+- **GitHub Actions**: Variables are automatically written to `$GITHUB_ENV` for use in subsequent steps
 - This flag is mutually exclusive with `--shell`
 
 **GitHub Actions Example:**
@@ -129,7 +136,7 @@ export APP_DEBUG='true'
 ## Flags
 
 - `-s, --shell string`: Shell type (bash, sh, powershell, cmd) [default: bash]
-- `--set`: Set environment variables directly (mutually exclusive with --shell)
+- `--set`: Set environment variables in CI/CD environments (GitHub Actions). For interactive shells, use eval/sourcing instead
 - `-p, --prefix string`: Prefix for environment variable names
 - `-h, --help`: Help information
 - `-v, --version`: Version information
