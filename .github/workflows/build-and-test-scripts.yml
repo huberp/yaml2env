@@ -127,12 +127,12 @@ jobs:
       uses: actions/checkout@v5
     
     - name: Download Linux artifacts
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v6
       with:
         name: yaml2env-linux-builds
     
     - name: Download Windows artifacts
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v6
       with:
         name: yaml2env-windows-builds
     
