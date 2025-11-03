@@ -29,6 +29,7 @@ jobs:
       with:
         file: ./coverage.txt
         fail_ci_if_error: false
+        use_oidc: true
 
   lint:
     name: Lint
