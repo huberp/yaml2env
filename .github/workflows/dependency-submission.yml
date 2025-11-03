@@ -1,0 +1,27 @@
+name: Go Dependency Submission
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'go.mod'
+
+permissions:
+  contents: write
+
+jobs:
+  go-dependency-submission:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: 'go.mod'
+
+      - name: Run Go Dependency Submission
+        uses: actions/go-dependency-submission@v2
+        with:
+          go-mod-path: go.mod
