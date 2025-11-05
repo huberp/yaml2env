@@ -146,49 +146,68 @@ export APP_DEBUG='true'
 ### Prerequisites
 
 - Go 1.25.3 or later
+- [goreleaser](https://goreleaser.com/install/) (optional, for local releases)
 
 ### Build
 
 ```bash
-make build
+go build
 ```
 
 ### Test
 
 ```bash
-make test
+go test -v ./...
 ```
 
-### Cross-Compile
+### Build for All Platforms (with goreleaser)
+
+```bash
+# Install goreleaser if needed
+# See: https://goreleaser.com/install/
+
+# Build snapshot (all platforms)
+goreleaser build --snapshot --clean
+
+# Binaries will be in dist/ directory
+```
+
+### Build Manually
 
 ```bash
 # Linux AMD64
-make build-linux-amd64
+GOOS=linux GOARCH=amd64 go build -o yaml2env-linux-amd64
 
 # Linux ARM64
-make build-linux-arm64
+GOOS=linux GOARCH=arm64 go build -o yaml2env-linux-arm64
 
 # Windows AMD64
-make build-windows-amd64
+GOOS=windows GOARCH=amd64 go build -o yaml2env-windows-amd64.exe
 
 # Windows ARM64
-make build-windows-arm64
+GOOS=windows GOARCH=arm64 go build -o yaml2env-windows-arm64.exe
 
-# All platforms
-make build-all
+# macOS AMD64
+GOOS=darwin GOARCH=amd64 go build -o yaml2env-darwin-amd64
+
+# macOS ARM64
+GOOS=darwin GOARCH=arm64 go build -o yaml2env-darwin-arm64
 ```
 
-## Testing Scripts
+## Release Process
 
-Test scripts are provided for both Unix and Windows:
+Releases are automated using [goreleaser](https://goreleaser.com/) and GitHub Actions:
 
-```bash
-# Unix/Linux
-./scripts/test.sh
+1. Tag a new version: `git tag -a v1.0.0 -m "Release v1.0.0"`
+2. Push the tag: `git push origin v1.0.0`
+3. GitHub Actions will automatically build and publish the release
 
-# PowerShell
-./scripts/test.ps1
-```
+The release workflow:
+- Runs all tests
+- Builds binaries for all supported platforms
+- Creates checksums
+- Generates release notes
+- Publishes to GitHub Releases
 
 ## License
 
