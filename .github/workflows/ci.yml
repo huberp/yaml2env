@@ -50,75 +50,73 @@ jobs:
     name: Build
     needs: [test, lint]
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        goos: [linux, windows]
-        goarch: [amd64, arm64]
     steps:
     - uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
     
     - name: Set up Go
       uses: actions/setup-go@v6
       with:
         go-version-file: 'go.mod'
     
-    - name: Build
+    - name: Run GoReleaser (snapshot)
+      uses: goreleaser/goreleaser-action@v6
+      with:
+        distribution: goreleaser
+        version: '~> v2'
+        args: build --snapshot --clean
       env:
-        GOOS: ${{ matrix.goos }}
-        GOARCH: ${{ matrix.goarch }}
-      run: |
-        go build -v -o yaml2env-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.goos == 'windows' && '.exe' || '' }} .
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     
     - name: Test executable
-      if: matrix.goos == 'linux' && matrix.goarch == 'amd64'
       run: |
         # Make executable
-        chmod +x yaml2env-${{ matrix.goos }}-${{ matrix.goarch }}
+        chmod +x dist/yaml2env_linux_amd64_v1/yaml2env
         
         # Test 1: Basic execution with example.yaml
         echo "Test 1: Basic conversion to bash"
-        ./yaml2env-${{ matrix.goos }}-${{ matrix.goarch }} example.yaml
+        dist/yaml2env_linux_amd64_v1/yaml2env example.yaml
         
         # Test 2: Verify output contains expected variables
         echo "Test 2: Verify output contains expected environment variables"
-        OUTPUT=$(./yaml2env-${{ matrix.goos }}-${{ matrix.goarch }} example.yaml)
+        OUTPUT=$(dist/yaml2env_linux_amd64_v1/yaml2env example.yaml)
         echo "$OUTPUT" | grep -q "export DATABASE_HOST='localhost'" || (echo "Missing DATABASE_HOST" && exit 1)
         echo "$OUTPUT" | grep -q "export DATABASE_PORT='5432'" || (echo "Missing DATABASE_PORT" && exit 1)
         echo "$OUTPUT" | grep -q "export APP_NAME='my-application'" || (echo "Missing APP_NAME" && exit 1)
         
         # Test 3: Test with prefix
         echo "Test 3: Test with prefix"
-        OUTPUT_PREFIX=$(./yaml2env-${{ matrix.goos }}-${{ matrix.goarch }} example.yaml --prefix TEST)
+        OUTPUT_PREFIX=$(dist/yaml2env_linux_amd64_v1/yaml2env example.yaml --prefix TEST)
         echo "$OUTPUT_PREFIX" | grep -q "export TEST_DATABASE_HOST='localhost'" || (echo "Prefix not applied" && exit 1)
         
         # Test 4: Test PowerShell format
         echo "Test 4: Test PowerShell format"
-        OUTPUT_PS=$(./yaml2env-${{ matrix.goos }}-${{ matrix.goarch }} example.yaml --shell powershell)
+        OUTPUT_PS=$(dist/yaml2env_linux_amd64_v1/yaml2env example.yaml --shell powershell)
         echo "$OUTPUT_PS" | grep -q "\$env:DATABASE_HOST = 'localhost'" || (echo "PowerShell format failed" && exit 1)
         
         # Test 5: Test CMD format
         echo "Test 5: Test CMD format"
-        OUTPUT_CMD=$(./yaml2env-${{ matrix.goos }}-${{ matrix.goarch }} example.yaml --shell cmd)
+        OUTPUT_CMD=$(dist/yaml2env_linux_amd64_v1/yaml2env example.yaml --shell cmd)
         echo "$OUTPUT_CMD" | grep -q 'set DATABASE_HOST=' || (echo "CMD format failed" && exit 1)
         
         # Test 6: Test sourcing
         echo "Test 6: Test sourcing environment variables"
-        eval "$(./yaml2env-${{ matrix.goos }}-${{ matrix.goarch }} example.yaml)"
+        eval "$(dist/yaml2env_linux_amd64_v1/yaml2env example.yaml)"
         [ "$DATABASE_HOST" = "localhost" ] || (echo "DATABASE_HOST not set correctly" && exit 1)
         [ "$DATABASE_PORT" = "5432" ] || (echo "DATABASE_PORT not set correctly" && exit 1)
         [ "$APP_NAME" = "my-application" ] || (echo "APP_NAME not set correctly" && exit 1)
         
         # Test 7: Test --set flag with mutual exclusivity
         echo "Test 7: Test --set flag mutual exclusivity"
-        ./yaml2env-${{ matrix.goos }}-${{ matrix.goarch }} example.yaml --set --shell bash 2>&1 | grep -q "mutually exclusive" || (echo "--set and --shell should be mutually exclusive" && exit 1)
+        dist/yaml2env_linux_amd64_v1/yaml2env example.yaml --set --shell bash 2>&1 | grep -q "mutually exclusive" || (echo "--set and --shell should be mutually exclusive" && exit 1)
         
         echo "All executable tests passed!"
     
     - name: Test --set mode
-      if: matrix.goos == 'linux' && matrix.goarch == 'amd64'
       run: |
         # Make executable
-        chmod +x yaml2env-${{ matrix.goos }}-${{ matrix.goarch }}
+        chmod +x dist/yaml2env_linux_amd64_v1/yaml2env
         
         # Create test YAML with simple values
         cat > test-set.yaml << EOF
@@ -130,7 +128,7 @@ jobs:
         
         # Test --set mode with GITHUB_ENV
         echo "Testing --set mode with GITHUB_ENV"
-        ./yaml2env-${{ matrix.goos }}-${{ matrix.goarch }} test-set.yaml --set
+        dist/yaml2env_linux_amd64_v1/yaml2env test-set.yaml --set
         
         # Verify variables were written to GITHUB_ENV
         grep -q "TEST_VAR1=value1" "$GITHUB_ENV" || (echo "TEST_VAR1 not found in GITHUB_ENV" && exit 1)
@@ -140,7 +138,6 @@ jobs:
         echo "--set mode test passed!"
     
     - name: Verify environment variables from --set mode
-      if: matrix.goos == 'linux' && matrix.goarch == 'amd64'
       run: |
         # Verify that variables set in previous step are available
         echo "Verifying environment variables are available in next step"
@@ -150,8 +147,8 @@ jobs:
         
         echo "Environment variables verified successfully!"
     
-    - name: Upload artifact
+    - name: Upload artifacts
       uses: actions/upload-artifact@v5
       with:
-        name: yaml2env-${{ matrix.goos }}-${{ matrix.goarch }}
-        path: yaml2env-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.goos == 'windows' && '.exe' || '' }}
+        name: binaries
+        path: dist/*
