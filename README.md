@@ -146,7 +146,7 @@ export APP_DEBUG='true'
 ### Prerequisites
 
 - Go 1.25.3 or later
-- [goreleaser](https://goreleaser.com/install/) (optional, for local releases)
+- [goreleaser](https://goreleaser.com/install/) (for building all platforms)
 
 ### Build
 
