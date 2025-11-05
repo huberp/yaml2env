@@ -109,7 +109,7 @@ jobs:
         
         # Test 7: Test --set flag with mutual exclusivity
         echo "Test 7: Test --set flag mutual exclusivity"
-        dist/yaml2env_linux_amd64_v1/yaml2env example.yaml --set --shell bash 2>&1 | grep -q "mutually exclusive" || (echo "--set and --shell should be mutually exclusive" && exit 1)
+        dist/yaml2env_linux_amd64_v1/yaml2env example.yaml --set --shell bash 2>&1 | grep -q "if any flags in the group \[set shell\]" || (echo "--set and --shell should be mutually exclusive" && exit 1)
         
         echo "All executable tests passed!"
     
