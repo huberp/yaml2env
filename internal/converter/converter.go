@@ -16,7 +16,7 @@ type EnvVar struct {
 
 // YAMLToEnvVars converts YAML data to environment variables
 func YAMLToEnvVars(data []byte, prefix string) ([]EnvVar, error) {
-	var content map[string]interface{}
+	var content map[string]any
 	if err := yaml.Unmarshal(data, &content); err != nil {
 		return nil, fmt.Errorf("invalid YAML: %w", err)
 	}
@@ -27,14 +27,14 @@ func YAMLToEnvVars(data []byte, prefix string) ([]EnvVar, error) {
 }
 
 // flatten recursively flattens nested YAML structures
-func flatten(parentKey string, data interface{}, prefix string, envVars *[]EnvVar) {
+func flatten(parentKey string, data any, prefix string, envVars *[]EnvVar) {
 	switch v := data.(type) {
-	case map[string]interface{}:
+	case map[string]any:
 		for key, value := range v {
 			newKey := buildKey(parentKey, key, prefix)
 			flatten(newKey, value, prefix, envVars)
 		}
-	case []interface{}:
+	case []any:
 		for i, value := range v {
 			newKey := fmt.Sprintf("%s_%d", parentKey, i)
 			flatten(newKey, value, prefix, envVars)
